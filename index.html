@@ -20,9 +20,24 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:16px;line-height:1.4;
-  padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 40px);-webkit-text-size-adjust:100%}
+  padding:calc(env(safe-area-inset-top) + 64px) 16px calc(env(safe-area-inset-bottom) + 40px);-webkit-text-size-adjust:100%}
 .wrap{max-width:520px;margin:0 auto}
-h1{font-size:17px;font-weight:600;text-align:center;margin:0 0 28px;color:var(--muted)}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:5;background:rgba(15,26,23,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.topbar .in{max-width:520px;margin:0 auto;height:52px;position:relative;display:flex;align-items:center;justify-content:center;padding:0 56px}
+.topbar h1,.topbar h3{margin:0;font-size:17px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;color:var(--text);display:flex;align-items:center;justify-content:center;border-radius:12px;font-family:inherit}
+.iconbtn:active{background:var(--line)}
+.donebtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--earn);font-family:inherit;font-size:17px;font-weight:700;padding:10px}
+.settings{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(100%);transition:transform .28s ease;visibility:hidden}
+.settings.show{transform:none;visibility:visible}
+.settings .topbar{position:sticky}
+.settings .body{max-width:520px;margin:0 auto;padding:20px 16px calc(env(safe-area-inset-bottom) + 40px)}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+.sec h4{margin:0 0 4px;font-size:16px}
+.sec .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1}
+.addrow .ghost{height:52px;flex:none}
 .total{display:block;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font-family:inherit;cursor:pointer;margin-bottom:24px}
 .total .lbl{color:var(--muted);font-size:17px}
 .total .num{font-size:56px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin:4px 0 2px}
@@ -62,10 +77,7 @@ h2{font-size:15px;color:var(--muted);font-weight:600;margin:20px 4px 10px}
 .row .a{font-weight:600;font-variant-numeric:tabular-nums}
 .a.earn{color:var(--earn)}.a.spend{color:var(--spend)}.a.adjust{color:var(--adj)}
 .empty{padding:28px 16px;text-align:center;color:var(--muted)}
-details{margin-top:28px}
-summary{color:var(--muted);font-size:15px;font-weight:600;padding:8px 4px 14px;list-style:none}
-summary::-webkit-details-marker{display:none}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .chip{display:flex;align-items:center;gap:6px;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 12px;font-size:15px}
 .chip button{border:0;background:var(--line);color:var(--text);width:24px;height:24px;border-radius:50%;font-size:13px;line-height:24px;padding:0}
 .btnrow{display:flex;gap:10px;flex-wrap:wrap}
@@ -82,8 +94,14 @@ summary::-webkit-details-marker{display:none}
 </style>
 </head>
 <body>
+<header class="topbar"><div class="in">
+  <h1 id="appName">Money Tracker</h1>
+  <button class="iconbtn" id="gearBtn" type="button" aria-label="Settings">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+</div></header>
+
 <div class="wrap">
-  <h1>Money Tracker</h1>
 
   <button class="total" id="totalBtn" type="button">
     <div class="lbl">Total money I have</div>
@@ -118,20 +136,41 @@ summary::-webkit-details-marker{display:none}
   <h2>History</h2>
   <div class="list" id="list"></div>
 
-  <details>
-    <summary>⚙︎ Jobs and backup</summary>
-    <label>Jobs</label>
-    <div class="chips" id="earnChips"></div>
-    <label>Things I buy</label>
-    <div class="chips" id="spendChips"></div>
-    <label>Backup</label>
-    <div class="btnrow">
-      <button class="ghost" id="exportBtn" type="button">Save a backup</button>
-      <button class="ghost" id="importBtn" type="button">Restore a backup</button>
-      <input type="file" id="importFile" accept=".json,application/json" hidden>
+</div>
+
+<div class="settings" id="settings" aria-hidden="true">
+  <header class="topbar"><div class="in">
+    <h3>Settings</h3>
+    <button class="donebtn" id="doneBtn" type="button">Done</button>
+  </div></header>
+  <div class="body">
+    <div class="sec">
+      <h4>App name</h4>
+      <p class="sub">Make it yours, like "Stephen's Money Tracker".</p>
+      <input type="text" id="nameInput" maxlength="40" autocapitalize="words" enterkeyhint="done" placeholder="Money Tracker">
     </div>
-    <p class="note">Your money list lives only on this phone. Save a backup now and then, like to Files or iCloud Drive, so nothing gets lost if the app is deleted.</p>
-  </details>
+    <div class="sec">
+      <h4>Jobs</h4>
+      <p class="sub">Things you get paid for. Tap ✕ to remove one.</p>
+      <div class="chips" id="earnChips"></div>
+      <div class="addrow"><input type="text" id="addEarn" placeholder="Add a job" autocapitalize="sentences" enterkeyhint="done"><button class="ghost" type="button" data-add="earn">Add</button></div>
+    </div>
+    <div class="sec">
+      <h4>Things I buy</h4>
+      <p class="sub">Things you spend money on.</p>
+      <div class="chips" id="spendChips"></div>
+      <div class="addrow"><input type="text" id="addSpend" placeholder="Add something" autocapitalize="sentences" enterkeyhint="done"><button class="ghost" type="button" data-add="spend">Add</button></div>
+    </div>
+    <div class="sec">
+      <h4>Backup</h4>
+      <p class="sub">Your money list lives only on this phone. Save a backup now and then, like to Files or iCloud Drive, so nothing gets lost if the app is deleted.</p>
+      <div class="btnrow">
+        <button class="ghost" id="exportBtn" type="button">Save a backup</button>
+        <button class="ghost" id="importBtn" type="button">Restore a backup</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="editOv">
@@ -252,9 +291,25 @@ function renderChips(){
       c.querySelector('button').onclick=function(){if(confirm('Remove "'+j.name+'" from the list? Past entries stay.')){state.lists[t].splice(i,1);save();renderSelect();renderChips();}};
       box.appendChild(c);
     });
-    if(!state.lists[t].length)box.innerHTML='<span class="note" style="margin:0">Nothing here yet. Add one with the + option above.</span>';
+    if(!state.lists[t].length)box.innerHTML='<span class="note" style="margin:0">Nothing here yet. Add one below.</span>';
   });
 }
+
+/* Header name and settings panel */
+var DEFAULT_NAME='Money Tracker';
+function appName(){return (state.name||'').trim()||DEFAULT_NAME;}
+function renderName(){var n=appName();$('appName').textContent=n;document.title=n;var m=document.querySelector('meta[name="apple-mobile-web-app-title"]');if(m)m.content=n;}
+$('nameInput').addEventListener('input',function(e){state.name=e.target.value;save();renderName();});
+$('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')blur();});
+function addItem(t){
+  var inp=$(t==='earn'?'addEarn':'addSpend');var name=inp.value.trim();if(!name)return;
+  if(!state.lists[t].some(function(x){return x.name.toLowerCase()===name.toLowerCase();})){state.lists[t].push({name:name,last:null});save();renderSelect();renderChips();toast('Added');}
+  inp.value='';
+}
+document.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){addItem(b.dataset.add);};});
+['addEarn','addSpend'].forEach(function(id){$(id).addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addItem(id==='addEarn'?'earn':'spend');}});});
+$('gearBtn').onclick=function(){$('nameInput').value=state.name||'';renderChips();$('settings').scrollTop=0;$('settings').classList.add('show');$('settings').setAttribute('aria-hidden','false');};
+$('doneBtn').onclick=function(){blur();$('settings').classList.remove('show');$('settings').setAttribute('aria-hidden','true');};
 
 /* Edit sheet */
 var editId=null,editType='earn';
@@ -308,7 +363,7 @@ $('importFile').onchange=function(e){
   var f=e.target.files[0];if(!f)return;var r=new FileReader();
   r.onload=function(){
     try{var o=JSON.parse(r.result);var s=o.data||o;if(!valid(s))throw 0;
-      if(confirm('Replace everything on this phone with this backup? ('+s.entries.length+' entries)')){state=s;if(!state.pick)state.pick={};save();setMode('earn');render();toast('Backup restored');}
+      if(confirm('Replace everything on this phone with this backup? ('+s.entries.length+' entries)')){state=s;if(!state.pick)state.pick={};save();setMode('earn');render();renderName();$('nameInput').value=state.name||'';toast('Backup restored');}
     }catch(err){alert('That file is not a Money Tracker backup.');}
     e.target.value='';
   };
@@ -318,7 +373,7 @@ $('importFile').onchange=function(e){
 /* Start */
 var defaultDate=today();$('date').value=defaultDate;
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&$('date').value===defaultDate&&defaultDate!==today()){defaultDate=today();$('date').value=defaultDate;}});
-setMode('earn');render();
+setMode('earn');render();renderName();
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){});}
 })();
 </script>
