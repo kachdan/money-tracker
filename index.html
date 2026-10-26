@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1a17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Money Tracker</title>
+<style>
+:root{
+  --bg:#0f1a17;--card:#16231f;--field:#0b1412;--line:#26372f;--text:#e6efeb;--muted:#8fa49c;
+  --btn:#e3eee9;--btnText:#0f1a17;--earn:#7bd88f;--spend:#ff8f7f;--adj:#a9bfff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:16px;line-height:1.4;
+  padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 40px);-webkit-text-size-adjust:100%}
+.wrap{max-width:520px;margin:0 auto}
+h1{font-size:17px;font-weight:600;text-align:center;margin:0 0 28px;color:var(--muted)}
+.total{display:block;width:100%;background:none;border:0;padding:0;text-align:left;color:inherit;font-family:inherit;cursor:pointer;margin-bottom:24px}
+.total .lbl{color:var(--muted);font-size:17px}
+.total .num{font-size:56px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin:4px 0 2px}
+.total .num.neg{color:var(--spend)}
+.total .hint{font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
+.seg button{border:0;background:none;color:var(--muted);font-family:inherit;font-size:16px;font-weight:600;padding:12px 0;border-radius:9px}
+.seg button.on{background:var(--line);color:var(--text)}
+.seg button.on.earn{color:var(--earn)}
+.seg button.on.spend{color:var(--spend)}
+.field{margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;height:52px;padding:0 14px;font-family:inherit;font-size:17px;color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:12px;-webkit-appearance:none;appearance:none;outline:none}
+input:focus,select:focus{border-color:var(--muted)}
+input[type=date]{display:flex;align-items:center}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%238fa49c' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+.money{position:relative}
+.money span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px;pointer-events:none}
+.money input{padding-left:30px}
+.newjob{display:none;margin-top:8px}
+.newjob.show{display:block}
+.primary{width:100%;height:54px;border:0;border-radius:12px;background:var(--btn);color:var(--btnText);font-family:inherit;font-size:18px;font-weight:700;margin-top:4px}
+.primary:active,.ghost:active{opacity:.8}
+.ghost{background:none;border:1px solid var(--line);color:var(--text);height:46px;border-radius:12px;font-family:inherit;font-size:16px;padding:0 16px}
+.danger{color:var(--spend)}
+.err{color:var(--spend);font-size:14px;min-height:20px;margin:8px 2px 0}
+h2{font-size:15px;color:var(--muted);font-weight:600;margin:20px 4px 10px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;width:100%;padding:14px 16px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font-family:inherit;font-size:16px;text-align:left}
+.row:first-child{border-top:0}
+.row>:last-child{text-align:right}
+.row.head{color:var(--muted);font-size:13px;font-weight:600;padding:10px 16px}
+.row .d{color:var(--muted);font-size:15px}
+.row .j{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .a{font-weight:600;font-variant-numeric:tabular-nums}
+.a.earn{color:var(--earn)}.a.spend{color:var(--spend)}.a.adjust{color:var(--adj)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+details{margin-top:28px}
+summary{color:var(--muted);font-size:15px;font-weight:600;padding:8px 4px 14px;list-style:none}
+summary::-webkit-details-marker{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 18px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 12px;font-size:15px}
+.chip button{border:0;background:var(--line);color:var(--text);width:24px;height:24px;border-radius:50%;font-size:13px;line-height:24px;padding:0}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+.note{font-size:13px;color:var(--muted);margin:10px 2px 0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.overlay.show{display:flex}
+.sheet{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:20px 16px calc(env(safe-area-inset-bottom) + 20px)}
+.sheet h3{margin:0 0 16px;font-size:18px}
+.sheet .btnrow{margin-top:8px}
+.sheet .btnrow>*{flex:1}
+.sheet .primary{margin-top:0;height:46px;font-size:16px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,20px);background:var(--btn);color:var(--btnText);padding:10px 18px;border-radius:999px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Money Tracker</h1>
+
+  <button class="total" id="totalBtn" type="button">
+    <div class="lbl">Total money I have</div>
+    <div class="num" id="total">$0.00</div>
+    <div class="hint">Tap to fix the total if it's off</div>
+  </button>
+
+  <div class="card">
+    <div class="seg">
+      <button type="button" id="modeEarn" class="earn on">Earned</button>
+      <button type="button" id="modeSpend" class="spend">Spent</button>
+    </div>
+    <div class="field">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="field">
+      <label for="job" id="jobLabel">Job</label>
+      <select id="job"></select>
+      <div class="newjob" id="newJobWrap">
+        <input type="text" id="newJob" placeholder="Name the new job" autocapitalize="sentences" enterkeyhint="done">
+      </div>
+    </div>
+    <div class="field">
+      <label for="amount">Amount</label>
+      <div class="money"><span>$</span><input type="text" id="amount" inputmode="decimal" placeholder="0.00" autocomplete="off"></div>
+    </div>
+    <button class="primary" id="addBtn" type="button">Add entry</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <h2>History</h2>
+  <div class="list" id="list"></div>
+
+  <details>
+    <summary>⚙︎ Jobs and backup</summary>
+    <label>Jobs</label>
+    <div class="chips" id="earnChips"></div>
+    <label>Things I buy</label>
+    <div class="chips" id="spendChips"></div>
+    <label>Backup</label>
+    <div class="btnrow">
+      <button class="ghost" id="exportBtn" type="button">Save a backup</button>
+      <button class="ghost" id="importBtn" type="button">Restore a backup</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+    <p class="note">Your money list lives only on this phone. Save a backup now and then, like to Files or iCloud Drive, so nothing gets lost if the app is deleted.</p>
+  </details>
+</div>
+
+<div class="overlay" id="editOv">
+  <div class="sheet">
+    <h3>Edit entry</h3>
+    <div class="seg" id="editSeg">
+      <button type="button" data-t="earn" class="earn">Earned</button>
+      <button type="button" data-t="spend" class="spend">Spent</button>
+    </div>
+    <p class="note" id="eAdjNote" style="margin:0 0 14px"></p>
+    <div class="field" id="eDateField"><label for="eDate">Date</label><input type="date" id="eDate"></div>
+    <div class="field" id="eJobField"><label for="eJob">Job</label><input type="text" id="eJob"></div>
+    <div class="field" id="eAmtField"><label for="eAmt">Amount</label><div class="money"><span>$</span><input type="text" id="eAmt" inputmode="decimal"></div></div>
+    <div class="btnrow">
+      <button class="ghost danger" id="eDel" type="button">Delete</button>
+      <button class="ghost" id="eCancel" type="button">Cancel</button>
+      <button class="primary" id="eSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adjOv">
+  <div class="sheet">
+    <h3>How much do you really have?</h3>
+    <p class="note" style="margin:0 0 14px">Count your money and type the real amount. The app adds a "Balance fix" line for the difference, so your history still adds up.</p>
+    <div class="field"><label for="adjAmt">Real amount</label><div class="money"><span>$</span><input type="text" id="adjAmt" inputmode="decimal"></div></div>
+    <div class="btnrow">
+      <button class="ghost" id="adjCancel" type="button">Cancel</button>
+      <button class="primary" id="adjSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+var KEY='moneyTracker.v1';
+function $(id){return document.getElementById(id);}
+var SEED={earn:['Lawn mowing','Raking leaves','Washing the car','Doing dishes','Taking out trash','Cleaning my room'],spend:['Snacks','Games','Toys','Gift for someone']};
+
+function fresh(){return{entries:[],lists:{earn:SEED.earn.map(function(n){return{name:n,last:null};}),spend:SEED.spend.map(function(n){return{name:n,last:null};})},pick:{}};}
+function valid(s){return s&&Array.isArray(s.entries)&&s.lists&&Array.isArray(s.lists.earn)&&Array.isArray(s.lists.spend);}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(valid(s))return s;}catch(e){}return fresh();}
+var state=load();if(!state.pick)state.pick={};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){alert('Could not save on this phone. Try saving a backup.');}}
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(function(){});}
+
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function cleanMoney(v){v=String(v).replace(/[^0-9.]/g,'');var i=v.indexOf('.');if(i>-1)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,'').slice(0,2);return v;}
+function toCents(v){var n=parseFloat(cleanMoney(v));return isNaN(n)?null:Math.round(n*100);}
+function centsToField(c){return c==null?'':(Math.abs(c)/100).toFixed(2);}
+function fmt(c){return(c<0?'-':'')+'$'+(Math.abs(c)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function shortDate(s){var p=s.split('-').map(Number);var dt=new Date(p[0],p[1]-1,p[2]);var o={month:'short',day:'numeric'};if(p[0]!==new Date().getFullYear())o.year='2-digit';return dt.toLocaleDateString('en-US',o);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function totalCents(){return state.entries.reduce(function(s,e){return s+e.amount;},0);}
+var toastT;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},1600);}
+function blur(){if(document.activeElement)document.activeElement.blur();}
+
+['amount','eAmt','adjAmt'].forEach(function(id){$(id).addEventListener('input',function(e){var c=cleanMoney(e.target.value);if(c!==e.target.value)e.target.value=c;});});
+
+/* Add form */
+var mode='earn';
+function setMode(m){mode=m;$('modeEarn').classList.toggle('on',m==='earn');$('modeSpend').classList.toggle('on',m==='spend');$('jobLabel').textContent=m==='earn'?'Job':'What I bought';$('err').textContent='';renderSelect();}
+$('modeEarn').onclick=function(){setMode('earn');};
+$('modeSpend').onclick=function(){setMode('spend');};
+
+function renderSelect(){
+  var sel=$('job');sel.innerHTML='';var list=state.lists[mode];
+  list.forEach(function(j){sel.add(new Option(j.name,j.name));});
+  sel.add(new Option(mode==='earn'?'+ Add a new job':'+ Add something new','__new'));
+  var p=state.pick[mode];
+  sel.value=list.some(function(j){return j.name===p;})?p:(list[0]?list[0].name:'__new');
+  onPick(false);
+}
+function onPick(userAction){
+  var sel=$('job');var isNew=sel.value==='__new';
+  $('newJobWrap').classList.toggle('show',isNew);
+  if(isNew){$('newJob').placeholder=mode==='earn'?'Name the new job':'What did you buy?';$('amount').value='';if(userAction)setTimeout(function(){$('newJob').focus();},60);}
+  else{var j=state.lists[mode].find(function(x){return x.name===sel.value;});$('amount').value=j&&j.last?centsToField(j.last):'';}
+  $('err').textContent='';
+}
+$('job').addEventListener('change',function(){onPick(true);});
+
+$('addBtn').onclick=function(){
+  var sel=$('job');var name=sel.value==='__new'?$('newJob').value.trim():sel.value;
+  if(!name){$('err').textContent=mode==='earn'?'Type a name for the new job.':'Type what you bought.';return;}
+  var c=toCents($('amount').value);
+  if(!c||c<=0){$('err').textContent='Type an amount bigger than $0.';return;}
+  var date=$('date').value||today();
+  state.entries.push({id:uid(),date:date,job:name,amount:mode==='spend'?-c:c,type:mode,created:Date.now()});
+  var list=state.lists[mode];var j=list.find(function(x){return x.name.toLowerCase()===name.toLowerCase();});
+  if(!j){j={name:name,last:null};list.push(j);}
+  j.last=c;state.pick[mode]=j.name;
+  save();$('newJob').value='';blur();renderSelect();render();
+  toast(mode==='earn'?'Nice! +'+fmt(c):'Logged -'+fmt(c));
+};
+
+/* History and total */
+function render(){
+  var total=totalCents();var t=$('total');t.textContent=fmt(total);t.classList.toggle('neg',total<0);
+  var rows=state.entries.slice().sort(function(a,b){return b.date.localeCompare(a.date)||b.created-a.created;});
+  var h='<div class="row head"><span>Date</span><span>Job</span><span>Amount</span></div>';
+  if(!rows.length)h+='<div class="empty">No entries yet. Add your first one above.</div>';
+  rows.forEach(function(e){h+='<button type="button" class="row" data-id="'+e.id+'"><span class="d">'+shortDate(e.date)+'</span><span class="j">'+esc(e.job)+'</span><span class="a '+e.type+'">'+(e.amount>0?'+':'')+fmt(e.amount)+'</span></button>';});
+  $('list').innerHTML=h;
+  renderChips();
+}
+$('list').addEventListener('click',function(e){var r=e.target.closest('.row[data-id]');if(r)openEdit(r.dataset.id);});
+
+function renderChips(){
+  ['earn','spend'].forEach(function(t){
+    var box=$(t+'Chips');box.innerHTML='';
+    state.lists[t].forEach(function(j,i){
+      var c=document.createElement('span');c.className='chip';
+      c.innerHTML=esc(j.name)+'<button type="button" aria-label="Remove">✕</button>';
+      c.querySelector('button').onclick=function(){if(confirm('Remove "'+j.name+'" from the list? Past entries stay.')){state.lists[t].splice(i,1);save();renderSelect();renderChips();}};
+      box.appendChild(c);
+    });
+    if(!state.lists[t].length)box.innerHTML='<span class="note" style="margin:0">Nothing here yet. Add one with the + option above.</span>';
+  });
+}
+
+/* Edit sheet */
+var editId=null,editType='earn';
+function setEditType(t){editType=t;$('editSeg').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});$('eJobField').querySelector('label').textContent=t==='earn'?'Job':'What I bought';}
+$('editSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setEditType(b.dataset.t);});
+function openEdit(id){
+  var e=state.entries.find(function(x){return x.id===id;});if(!e)return;editId=id;
+  var adj=e.type==='adjust';
+  ['editSeg','eDateField','eJobField','eAmtField','eSave'].forEach(function(k){$(k).style.display=adj?'none':'';});
+  $('eAdjNote').style.display=adj?'':'none';
+  if(adj){$('eAdjNote').textContent='This is a balance fix of '+(e.amount>0?'+':'')+fmt(e.amount)+' from '+shortDate(e.date)+'. Delete it if it was a mistake.';}
+  else{setEditType(e.type);$('eDate').value=e.date;$('eJob').value=e.job;$('eAmt').value=centsToField(e.amount);}
+  $('editOv').classList.add('show');
+}
+$('eSave').onclick=function(){
+  var e=state.entries.find(function(x){return x.id===editId;});if(!e){closeSheets();return;}
+  var name=$('eJob').value.trim();var c=toCents($('eAmt').value);
+  if(!name||!c||c<=0){alert('Add a name and an amount bigger than $0.');return;}
+  e.date=$('eDate').value||e.date;e.job=name;e.type=editType;e.amount=editType==='spend'?-c:c;
+  save();closeSheets();render();toast('Saved');
+};
+$('eDel').onclick=function(){if(!confirm('Delete this entry?'))return;state.entries=state.entries.filter(function(x){return x.id!==editId;});save();closeSheets();render();toast('Deleted');};
+$('eCancel').onclick=closeSheets;
+
+/* Fix total sheet */
+$('totalBtn').onclick=function(){var t=totalCents();$('adjAmt').value=t>0?centsToField(t):'';$('adjOv').classList.add('show');};
+$('adjSave').onclick=function(){
+  var c=toCents($('adjAmt').value);if(c==null){alert('Type the amount you have.');return;}
+  var diff=c-totalCents();
+  if(diff!==0){state.entries.push({id:uid(),date:today(),job:'Balance fix',amount:diff,type:'adjust',created:Date.now()});save();render();toast('Total updated');}
+  closeSheets();
+};
+$('adjCancel').onclick=closeSheets;
+
+function closeSheets(){document.querySelectorAll('.overlay').forEach(function(o){o.classList.remove('show');});blur();}
+document.querySelectorAll('.overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)closeSheets();});});
+
+/* Backup */
+$('exportBtn').onclick=function(){
+  var data=JSON.stringify({app:'money-tracker',version:1,saved:new Date().toISOString(),data:state},null,2);
+  var name='money-backup-'+today()+'.json';
+  var fallback=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);};
+  try{
+    var file=new File([data],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:'Money backup'}).catch(function(err){if(!err||err.name!=='AbortError')fallback();});return;}
+  }catch(e){}
+  fallback();
+};
+$('importBtn').onclick=function(){$('importFile').click();};
+$('importFile').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){
+    try{var o=JSON.parse(r.result);var s=o.data||o;if(!valid(s))throw 0;
+      if(confirm('Replace everything on this phone with this backup? ('+s.entries.length+' entries)')){state=s;if(!state.pick)state.pick={};save();setMode('earn');render();toast('Backup restored');}
+    }catch(err){alert('That file is not a Money Tracker backup.');}
+    e.target.value='';
+  };
+  r.readAsText(f);
+};
+
+/* Start */
+var defaultDate=today();$('date').value=defaultDate;
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&$('date').value===defaultDate&&defaultDate!==today()){defaultDate=today();$('date').value=defaultDate;}});
+setMode('earn');render();
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){});}
+})();
+</script>
+</body>
+</html>
