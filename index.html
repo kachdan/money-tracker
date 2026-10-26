@@ -45,7 +45,8 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,B
 .total .hint{font-size:13px;color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
 .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
-.seg button{border:0;background:none;color:var(--muted);font-family:inherit;font-size:16px;font-weight:600;padding:12px 0;border-radius:9px}
+.seg button{border:0;background:none;color:var(--muted);font-family:inherit;font-size:16px;font-weight:600;padding:12px 0;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg .ic{flex:none}
 .seg button.on{background:var(--line);color:var(--text)}
 .seg button.on.earn{color:var(--earn)}
 .seg button.on.spend{color:var(--spend)}
@@ -111,8 +112,8 @@ h2{font-size:15px;color:var(--muted);font-weight:600;margin:20px 4px 10px}
 
   <div class="card">
     <div class="seg">
-      <button type="button" id="modeEarn" class="earn on">Earned</button>
-      <button type="button" id="modeSpend" class="spend">Spent</button>
+      <button type="button" id="modeEarn" class="earn on"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>Earned</button>
+      <button type="button" id="modeSpend" class="spend"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Spent</button>
     </div>
     <div class="field">
       <label for="date">Date</label>
@@ -177,8 +178,8 @@ h2{font-size:15px;color:var(--muted);font-weight:600;margin:20px 4px 10px}
   <div class="sheet">
     <h3>Edit entry</h3>
     <div class="seg" id="editSeg">
-      <button type="button" data-t="earn" class="earn">Earned</button>
-      <button type="button" data-t="spend" class="spend">Spent</button>
+      <button type="button" data-t="earn" class="earn"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>Earned</button>
+      <button type="button" data-t="spend" class="spend"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>Spent</button>
     </div>
     <p class="note" id="eAdjNote" style="margin:0 0 14px"></p>
     <div class="field" id="eDateField"><label for="eDate">Date</label><input type="date" id="eDate"></div>
